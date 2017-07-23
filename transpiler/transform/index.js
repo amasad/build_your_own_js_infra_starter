@@ -21,4 +21,4 @@ function isNode(node) {
   return node && typeof node === 'object' && t.TYPES.includes(node.type);
 }
 
-mmodule.exports = transform;
+module.exports = transform;

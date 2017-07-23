@@ -35,4 +35,28 @@ describe('transform', () => {
 
     expect(code).toBe('x = 1;');
   });
+
+  it('should work with nesting', () => {
+    const pre = `
+      function foo() {
+        x = 1;
+        console.log(a);
+      }
+    `;
+
+    const code = transform(pre, {
+      ExpressionStatement(node) {
+        if (t.isCallExpression(node.expression)) {
+          return null;
+        }
+
+        return node;
+      },
+    });
+
+    expect(code).toBe(`
+function foo() {
+  x = 1;
+}`);
+  });
 });
