@@ -13,6 +13,8 @@ function transform(code, visitors) {
   // for every node
   // check its type matches a visitor
   // call the handler for the visitor
+
+  return generate(ast).code;
 }
 
 function isNode(node) {
