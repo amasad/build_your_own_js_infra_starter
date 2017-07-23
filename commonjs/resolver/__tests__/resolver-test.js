@@ -52,4 +52,28 @@ describe('resolve', () => {
       '/project/node_modules/util/index.js',
     );
   });
+
+  it('should resolve node_modules with package.json', () => {
+    require('fs').__setMockFiles({
+      '/project/index.js': 'require("util")',
+      '/project/node_modules/util/package.json': '{ "main": "./main.js" }',
+      '/project/node_modules/util/main.js': 'module.exports = {};',
+    });
+
+    expect(resolve('/project/index.js', 'util')).toBe(
+      '/project/node_modules/util/main.js',
+    );
+  });
+
+  it('should traverse up node_modules', () => {
+    require('fs').__setMockFiles({
+      '/project/index.js': 'require("util")',
+      '/node_modules/util/package.json': '{ "main": "./main.js" }',
+      '/node_modules/util/main.js': 'module.exports = {};',
+    });
+
+    expect(resolve('/project/index.js', 'util')).toBe(
+      '/node_modules/util/main.js',
+    );
+  });
 });
