@@ -2,23 +2,34 @@ const babylon = require('babylon');
 const t = require('babel-types');
 const generate = require('babel-generator').default;
 
+function walk(node, visitors) {
+  if (!isNode(node)) return node;
+
+  let modified = visitors[node.type] ? visitors[node.type](node) : node;
+
+  for (const key in modified) {
+    if (Array.isArray(modified[key])) {
+      modified[key] = modified[key].map(child => {
+        return walk(child, visitors);
+      });
+    } else if (isNode(modified[key])) {
+      modified[key] = walk(modified[key], visitors);
+    }
+  }
+
+  return modified;
+}
+
 function transform(code, visitors) {
   const ast = babylon.parse(code);
 
-  // visitors: {
-  //   NumericLiteral: function() {}
-  // }
-
-  // go through ast and
-  // for every node
-  // check its type matches a visitor
-  // call the handler for the visitor
+  walk(ast.program, visitors);
 
   return generate(ast).code;
 }
 
 function isNode(node) {
-  return node && typeof node === 'object' && t.TYPES.includes(node.type);
+  return node && node.type != null;
 }
 
 module.exports = transform;
